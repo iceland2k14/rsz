@@ -10,6 +10,9 @@ The script parse the data of rawtx to fetch all the inputs in the transaction an
 ## Requirements
 The required library (3 files) can be obtained from the location https://github.com/iceland2k14/secp256k1
 
+## Math
+![image](https://github.com/iceland2k14/rsz/assets/75991805/b90164c8-a361-428b-b3d5-a6044782c59e)
+
 ## Usage: Python 3
 ```python getz_input.py```
 
