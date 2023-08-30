@@ -110,3 +110,55 @@ Pubkey: 04d6780000bdd44454c3a0513d65516bb47731b54d0626afda253bd641c122d6f1409745
  found private key = 0x9d14389997898f331015c1f46bb28ffbb574c6e37402fdd05358e03ad9611965
 ---------------------------------------------------------------------------
 ```
+```
+(base) C:\anaconda3\RSZ>python rsz_rdiff_scan.py -a 1BFhrfTTZP3Nw4BNy4eX4KFLsn9ZeijcMm
+
+Starting Program...
+------------------------------------------------------------------------------------------------------------------------
+Total: 50 Input/Output Transactions in the Address: 1BFhrfTTZP3Nw4BNy4eX4KFLsn9ZeijcMm
+UnSupported Tx Input. Presence of Witness Data
+Skipped the Tx [d52c7663adf9702529553e8eeb18f7f2bedad1e4ef23a7f9a187660d7dcb3522]........
+UnSupported Tx Input. Presence of Witness Data
+Skipped the Tx [d52c7663adf9702529553e8eeb18f7f2bedad1e4ef23a7f9a187660d7dcb3522]........
+======================================================================
+[Input Index #: 0] [txid: 3b7a0a5f4c55718f6374fd718d65e2b4a8fde8fd1158b4f9f659872899530939]
+     R: 384327a0bdd1aeb3c33c4a49d7ab617657e24e979085b672017f25f9761722fd
+     S: 6e2685a20bc95af56a8aa6035a7e29f1cedbb8cd56403011e9281687ed32ee58
+     Z: 938a0a4d20b7e40bbd587f752f85dd1ed7f84b790965ca0407b5367d33f17f6b
+PubKey: 04dbd0c61532279cf72981c3584fc32216e0127699635c2789f549e0730c059b81ae133016a69c21e23f1859a95f06d52b7bf149a8f2fe4e8535c8a829b449c5ff
+======================================================================
+[Input Index #: 0] [txid: d3d0e560d414c86d88ea645a9dbee583d21a95ae2e57f10679b043ef33a0d23c]
+     R: 4e1e91433ad7b1f6e52466f4d233c94b7023937f6345ab1179a2b268a22d52cc
+     S: 270941b896645a8ecd98253dae59c580766ec10391d5742f830874dbabc4acbe
+     Z: 74419baf355e3e14c1e44b9bcd8e7a7a2cdd1488c72fbfd3ab30523a448dd70d
+PubKey: 04dbd0c61532279cf72981c3584fc32216e0127699635c2789f549e0730c059b81ae133016a69c21e23f1859a95f06d52b7bf149a8f2fe4e8535c8a829b449c5ff
+======================================================================
+[Input Index #: 0] [txid: 3e9cd088d9f5462709b0e407c3e938518b348feaad879bc24fb88ff9b0ade941]
+     R: 755f50abc717f8a5c7bf41d4ae2f6c702afcb3dccf127ae02dbcf5c64c55f3ea
+     S: 45e92613115448bd6710c313ff2c6af2924dafee49d7a57915003ee218f5b73a
+     Z: ee540220c3570af1cf96f9d9660b3e1dc593cae60e68a284363badce26830d64
+PubKey: 04dbd0c61532279cf72981c3584fc32216e0127699635c2789f549e0730c059b81ae133016a69c21e23f1859a95f06d52b7bf149a8f2fe4e8535c8a829b449c5ff
+======================================================================
+.....
+.....
+.....
+.....
+========  RSZ to PubKey Validation [SUCCESS]  ========
+========  RSZ to PubKey Validation [SUCCESS]  ========
+========  RSZ to PubKey Validation [SUCCESS]  ========
+========  RSZ to PubKey Validation [SUCCESS]  ========
+========  RSZ to PubKey Validation [SUCCESS]  ========
+========  RSZ to PubKey Validation [SUCCESS]  ========
+.....
+.....
+Duplicate R Found. Congrats!. (87, 95, '0400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000')
+.....
+.....
+======================================================================
+------------------------------------------------------------------------------------------------------------------------
+[i=103] [j=105] [R Diff = fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141]
+Privatekey FOUND: 0xc477f9f65c22cce20657faa5b2d1d8122336f851a508a1ed04e479c34985bf96
+======================================================================
+------------------------------------------------------------------------------------------------------------------------
+Program Finished ...
+```
