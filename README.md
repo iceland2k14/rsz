@@ -12,6 +12,7 @@ The required library (3 files) can be obtained from the location https://github.
 
 ## Math
 ![image](https://github.com/iceland2k14/rsz/assets/75991805/b90164c8-a361-428b-b3d5-a6044782c59e)
+![image](https://github.com/iceland2k14/rsz/assets/75991805/a3dd36ed-3eb4-4a7b-ae3e-44968e34631f)
 
 ## Usage: Python 3
 ```python getz_input.py```
