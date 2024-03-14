@@ -4,7 +4,7 @@
 @author: iceland
 """
 import sys
-import hashlib
+import secp256k1 as ice
 import argparse
 from urllib.request import urlopen
 #==============================================================================
@@ -97,12 +97,14 @@ def getSignableTxn(parsed):
                 e += '00'
             e += inp_list[i][5] # seq
         e += rest + "01000000"
-        z = hashlib.sha256(hashlib.sha256(bytes.fromhex(e)).digest()).hexdigest()
+        z = ice.get_sha256(ice.get_sha256(bytes.fromhex(e))).hex()
         res.append([inp_list[one][2], inp_list[one][3], z, inp_list[one][4], e])
     return res
 #==============================================================================
 def HASH160(pubk_hex):
-    return hashlib.new('ripemd160', hashlib.sha256(bytes.fromhex(pubk_hex)).digest() ).hexdigest()
+    iscompressed = True if len(pubk_hex) < 70 else False
+    P = ice.pub2upub(pubk_hex)
+    return ice.pubkey_to_h160(0, iscompressed, P).hex()
 #==============================================================================
 
 #txn = '01000000028370ef64eb83519fd14f9d74826059b4ce00eae33b5473629486076c5b3bf215000000008c4930460221009bf436ce1f12979ff47b4671f16b06a71e74269005c19178384e9d267e50bbe9022100c7eabd8cf796a78d8a7032f99105cdcb1ae75cd8b518ed4efe14247fb00c9622014104e3896e6cabfa05a332368443877d826efc7ace23019bd5c2bc7497f3711f009e873b1fcc03222f118a6ff696efa9ec9bb3678447aae159491c75468dcc245a6cffffffffb0385cd9a933545628469aa1b7c151b85cc4a087760a300e855af079eacd25c5000000008b48304502210094b12a2dd0f59b3b4b84e6db0eb4ba4460696a4f3abf5cc6e241bbdb08163b45022007eaf632f320b5d9d58f1e8d186ccebabea93bad4a6a282a3c472393fe756bfb014104e3896e6cabfa05a332368443877d826efc7ace23019bd5c2bc7497f3711f009e873b1fcc03222f118a6ff696efa9ec9bb3678447aae159491c75468dcc245a6cffffffff01404b4c00000000001976a91402d8103ac969fe0b92ba04ca8007e729684031b088ac00000000'

