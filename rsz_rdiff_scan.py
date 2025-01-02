@@ -208,6 +208,12 @@ print('\nStarting Program...')
 
 print('-'*120)
 txid, cdx = check_tx(address)
+d = set([txid[i] +'BS'+ str(cdx[i]) for i in range(len(txid))])
+txid = [line.split('BS')[0] for line in d]
+cdx = [int(line.split('BS')[1]) for line in d]
+print(f'Total {len(txid)} outgoing unique Tx fetched from the Address {address}')
+
+# list(filter(lambda i: txid[i] == 'anyTx', range(len(txid))))
 RQ, rL, sL, zL, QL = [], [], [], [], []
 
 for c in range(len(txid)):
