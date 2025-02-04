@@ -256,7 +256,7 @@ ice.bsgs_2nd_check_prepare(bP)
 
 solvable_diff = []
 for Q in RD:
-    found, diff = ice.bsgs_2nd_check(Q[2], -1, bP)
+    found, diff = ice.bsgs_2nd_check(Q[2], -1)
     if found == True:
         solvable_diff.append((Q[0], Q[1], diff.hex()))
     
